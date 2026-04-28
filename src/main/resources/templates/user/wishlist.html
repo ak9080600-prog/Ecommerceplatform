@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	th:replace="~{base::layout(~{::section})}">
+<head>
+<meta charset="ISO-8859-1">
+<title>My Wishlist</title>
+</head>
+<body>
+	<section>
+		<div class="container-fluid mt-5 p-5">
+			<div class="card card-sh">
+				<div class="card-header text-center">
+					<p class="fs-4">My Wishlist</p>
+					<th:block th:if="${session.succMsg}">
+						<p class="text-success fw-bold">[[${session.succMsg}]]</p>
+						<th:block th:text="${@commnServiceImpl.removeSessionMessage()}"></th:block>
+					</th:block>
+
+					<th:block th:if="${session.errorMsg}">
+						<p class="text-danger fw-bold">[[${session.errorMsg}]]</p>
+						<th:block th:text="${@commnServiceImpl.removeSessionMessage()}"></th:block>
+					</th:block>
+				</div>
+				<div class="card-body">
+					<table class="table">
+						<thead>
+							<tr>
+								<th scope="col">Sl No</th>
+								<th scope="col">Image</th>
+								<th scope="col">Product Name</th>
+								<th scope="col">Price</th>
+								<th scope="col">Action</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="wish,c:${wishlists}">
+								<th scope="row">[[${c.count}]]</th>
+								<td><img
+									th:src="${wish.product.image}"
+									width="70px" height="70px"></td>
+								<td>[[${wish.product.title}]]</td>
+								<td><th:block th:utext="${@commnServiceImpl.rupeeSign()}"></th:block> [[${wish.product.discountPrice}]]</td>
+								<td>
+									<a th:href="@{'/product/'+${wish.product.id}}" class="btn btn-sm btn-primary">View</a>
+									<a th:href="@{'/user/addCart?pid='+${wish.product.id}+'&uid='+${user.id}}" class="btn btn-sm btn-danger">Add to Cart</a>
+									<a th:href="@{'/user/removeWishlist?id='+${wish.id}}" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></a>
+								</td>
+							</tr>
+							<tr th:if="${wishlists.size() == 0}">
+								<td colspan="5" class="text-center">Your wishlist is empty</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</section>
+</body>
+</html>

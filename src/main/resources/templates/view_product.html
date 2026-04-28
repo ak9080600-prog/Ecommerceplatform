@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	th:replace="~{base::layout(~{::section})}">
+<head>
+<meta charset="ISO-8859-1">
+<title>Insert title here</title>
+</head>
+<body>
+	<section>
+		<div class="container card-sh"
+			style="margin-top: 70px; margin-bottom: 100px">
+
+			<div class="col-md-12 p-5">
+				<div class="row">
+					<th:block th:if="${session.succMsg}">
+						<p class="text-success alert alert-success text-center" role="alert">[[${session.succMsg}]]</p>
+						<th:block th:text="${@commnServiceImpl.removeSessionMessage()}"></th:block>
+					</th:block>
+
+					<th:block th:if="${session.errorMsg}">
+						<p class="text-danger text-center  alert alert-danger">[[${session.errorMsg}]]</p>
+						<th:block th:text="${@commnServiceImpl.removeSessionMessage()}"></th:block>
+
+					</th:block>
+					<div class="col-md-6 text-end">
+						<img alt="" th:src="${product.image}" width="330px"
+							height="400px">
+					</div>
+
+					<div class="col-md-6">
+
+						<p class="fs-3">[[${product.title}]]</p>
+						<p>
+							<span class="fw-bold">Description : </span><br>[[${product.description}]]
+						</p>
+						<p>
+							<span class="fw-bold"> Product Details: </span> <br> Status
+							:
+							<th:block th:if="${product.stock>0}">
+								<span class="badge bg-success">Available</span>
+							</th:block>
+
+							<th:block th:unless="${product.stock>0}">
+								<span class="badge bg-warning">out of stock</span>
+							</th:block>
+
+
+							<br> Category: [[${product.category}]]<br> Policy : 7
+							Days Replacement & Return
+						</p>
+						<p class="fs-5 fw-bold">
+							Price :&nbsp; &nbsp; &nbsp; &nbsp;<th:block th:utext="${@commnServiceImpl.rupeeSign()}"></th:block>
+							[[${product.discountPrice}]] <span
+								class="fs-6 text-decoration-line-through text-secondary">[[${product.price}]]</span>
+							<span class="fs-6  text-success">[[${product.discount}]]%
+								off</span>
+						</p>
+
+						<div class="row">
+							<div class="col-md-4 text-success text-center p-2">
+								<i class="fas fa-money-bill-wave fa-2x"></i>
+								<p>Cash On Delivery</p>
+							</div>
+							<div class="col-md-4 text-danger text-center p-2">
+								<i class="fas fa-undo-alt fa-2x"></i>
+								<p>Return Available</p>
+							</div>
+							<div class="col-md-4 text-primary text-center p-2">
+								<i class="fas fa-truck-moving fa-2x"></i>
+								<p>Free Shipping</p>
+							</div>
+						</div>
+
+						<th:block th:if="${product.stock>0}">
+							<th:block th:if="${user==null}">
+								<a href="/signin" class="btn btn-danger col-md-12">Add To
+									Cart</a>
+							</th:block>
+
+							<th:block th:unless="${user==null}">
+								<div class="d-flex gap-2 mb-2">
+									<a th:href="@{'/user/addCart?pid='+${product.id}+'&uid='+${user.id}}"
+										class="btn btn-danger w-100">Add To Cart</a>
+									<a th:href="@{'/user/addWishlist?pid='+${product.id}+'&uid='+${user.id}}"
+										class="btn btn-outline-danger w-100"><i class="fas fa-heart"></i> Add To Wishlist</a>
+								</div>
+							</th:block>
+
+						</th:block>
+
+						<th:block th:unless="${product.stock>0}">
+							<a href="#" class="btn text-white btn-warning col-md-12">Out
+								of Stock</a>
+						</th:block>
+
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="container card-sh mt-4 mb-5 p-4">
+			<h4 class="mb-4">Product Reviews</h4>
+			
+			<div th:if="${reviews != null and !reviews.isEmpty()}">
+				<div class="mb-3 border-bottom pb-2" th:each="review : ${reviews}">
+					<div class="d-flex justify-content-between">
+						<strong><i class="fas fa-user-circle"></i> [[${review.user.name}]]</strong>
+						<span class="text-warning">
+							<i class="fas fa-star" th:each="i : ${#numbers.sequence(1, review.rating)}"></i>
+							<i class="far fa-star" th:if="${review.rating < 5}" th:each="i : ${#numbers.sequence(review.rating + 1, 5)}"></i>
+						</span>
+					</div>
+					<p class="mt-2 mb-1">[[${review.reviewText}]]</p>
+					<small class="text-muted" th:text="${#dates.format(review.reviewDate, 'dd-MMM-yyyy')}"></small>
+				</div>
+			</div>
+			<div th:if="${reviews == null or reviews.isEmpty()}" class="alert alert-secondary">
+				No reviews yet. Be the first to review this product!
+			</div>
+
+			<th:block th:unless="${user==null}">
+				<div class="mt-4 p-3 border rounded bg-light">
+					<h5>Write a Review</h5>
+					<form action="/user/saveReview" method="post">
+						<input type="hidden" name="pid" th:value="${product.id}" />
+						<input type="hidden" name="uid" th:value="${user.id}" />
+						<div class="mb-3">
+							<label class="form-label">Rating</label>
+							<select name="rating" class="form-select w-25" required>
+								<option value="5">5 - Excellent</option>
+								<option value="4">4 - Very Good</option>
+								<option value="3">3 - Average</option>
+								<option value="2">2 - Poor</option>
+								<option value="1">1 - Terrible</option>
+							</select>
+						</div>
+						<div class="mb-3">
+							<label class="form-label">Your Review</label>
+							<textarea name="reviewText" class="form-control" rows="3" required></textarea>
+						</div>
+						<button type="submit" class="btn btn-primary">Submit Review</button>
+					</form>
+				</div>
+			</th:block>
+			<th:block th:if="${user==null}">
+				<p class="mt-3"><a href="/signin">Log in</a> to write a review.</p>
+			</th:block>
+		</div>
+
+	</section>
+</body>
+</html>
